@@ -119,6 +119,7 @@ The build script supports guarded database migrations:
 
 - `RUN_DB_MIGRATIONS=1` → run `db:migrate` during build
 - unset or any other value → skip migrations
+- If Stack Auth env vars are missing at build time, `vercel:build` injects temporary placeholders to avoid static generation crashes; set real values in Vercel project envs for runtime auth to work.
 
 Recommended first deploy flow:
 

@@ -17,7 +17,7 @@
     "mcp:debug": "bunx @modelcontextprotocol/inspector",
     "workflow:dev": "bunx workflow inspect runs --web",
     "db:migrate-if-needed": "bun run scripts/migrate-if-needed.ts",
-    "vercel:build": "bun run db:migrate-if-needed && bun run build"
+    "vercel:build": "NEXT_PUBLIC_STACK_PROJECT_ID=${NEXT_PUBLIC_STACK_PROJECT_ID:-build-placeholder} NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=${NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY:-build-placeholder} STACK_SECRET_SERVER_KEY=${STACK_SECRET_SERVER_KEY:-build-placeholder} bun run db:migrate-if-needed && bun run build"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.31",
