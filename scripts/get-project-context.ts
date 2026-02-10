@@ -131,7 +131,8 @@ async function getProjectContext(projectId: string) {
     console.log("Project:");
     console.log(`  Name:              ${project.name}`);
     console.log(`  ID:                ${project.id}`);
-    console.log(`  Neon Project:      ${project.neonProjectId}`);
+    console.log(`  Backend Type:      ${project.backendType}`);
+    console.log(`  Backend Project:   ${project.backendProjectId || "(none)"}`);
     console.log(`  Repository:        ${project.repoId}`);
     console.log(`  Thread ID:         ${project.threadId}`);
     console.log(
