@@ -17,7 +17,7 @@
     "mcp:debug": "bunx @modelcontextprotocol/inspector",
     "workflow:dev": "bunx workflow inspect runs --web",
     "db:migrate-if-needed": "bun run scripts/migrate-if-needed.ts",
-    "vercel:build": "NEXT_PUBLIC_STACK_PROJECT_ID=${NEXT_PUBLIC_STACK_PROJECT_ID:-build-placeholder} NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=${NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY:-build-placeholder} STACK_SECRET_SERVER_KEY=${STACK_SECRET_SERVER_KEY:-build-placeholder} bun run db:migrate-if-needed && bun run build"
+    "vercel:build": "bash -lc 'export NEXT_PUBLIC_STACK_PROJECT_ID=${NEXT_PUBLIC_STACK_PROJECT_ID:-build-placeholder}; export NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=${NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY:-build-placeholder}; export STACK_SECRET_SERVER_KEY=${STACK_SECRET_SERVER_KEY:-build-placeholder}; export DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/postgres}; export NEON_API_KEY=${NEON_API_KEY:-build-placeholder}; export NEXT_PUBLIC_MASTRA_API_URL=${NEXT_PUBLIC_MASTRA_API_URL:-http://localhost:4111}; export NEXT_PUBLIC_ASSISTANT_BASE_URL=${NEXT_PUBLIC_ASSISTANT_BASE_URL:-http://localhost:3000}; export ASSISTANT_API_KEY=${ASSISTANT_API_KEY:-build-placeholder}; export FREESTYLE_API_KEY=${FREESTYLE_API_KEY:-build-placeholder}; export ENCRYPTION_KEY=${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}; bun run db:migrate-if-needed && bun run build'"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.31",
