@@ -26,19 +26,17 @@ export class NeonBackendAdapter implements BackendAdapter {
   }
 
   async rollback(_projectId: string, snapshotId: string): Promise<void> {
-async rollback(_projectId: string, snapshotId: string): Promise<void> {
-  const prodBranch = await neonService.getProductionBranch(this.neonProjectId);
+    const prodBranch = await neonService.getProductionBranch(this.neonProjectId);
 
-  if (!prodBranch?.id) {
-    throw new Error("Production branch not found");
-  }
+    if (!prodBranch?.id) {
+      throw new Error("Production branch not found");
+    }
 
-  await neonService.applySnapshot(
-    this.neonProjectId,
-    snapshotId,
-    prodBranch.id,
-  );
-}
+    await neonService.applySnapshot(
+      this.neonProjectId,
+      snapshotId,
+      prodBranch.id,
+    );
   }
 
   async buildEnv(): Promise<Record<string, string>> {
