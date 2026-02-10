@@ -7,7 +7,7 @@ import { context7McpClient } from "../mcp/context7";
 import type { CodegenRuntimeContext } from "./context";
 import { eq } from "drizzle-orm";
 
-import { neonService } from "@/lib/neon";
+import { getBackendAdapter } from "@/backends/getBackendAdapter";
 import { db } from "@/lib/db/db";
 import {
   projectVersionsTable,
@@ -19,7 +19,6 @@ import { encrypt } from "@/lib/encryption";
 
 export async function createFreestyleTools(
   repoId: string,
-  neonProjectId: string,
   projectId: string,
   assistantMessageId: string,
   runtimeContext: RuntimeContext<CodegenRuntimeContext>,
@@ -273,13 +272,13 @@ export async function createFreestyleTools(
         const commitHash = await freestyleService.getLatestCommit(repoId);
         console.log(`[freestyle-commit-and-push] Commit hash: ${commitHash}`);
 
-        // Create a Neon snapshot
+        // Create a backend snapshot
+        const backend = getBackendAdapter(project);
         console.log(
-          `[freestyle-commit-and-push] Creating Neon snapshot for project: ${neonProjectId}`,
+          `[freestyle-commit-and-push] Creating ${project.backendType} snapshot for project: ${project.id}`,
         );
-        const snapshotId = await neonService.createSnapshot(neonProjectId, {
-          name: `snapshot-${commitHash.substring(0, 7)}`,
-        });
+        const snapshot = await backend.snapshot(project.id);
+        const snapshotId = snapshot.id;
         console.log(
           `[freestyle-commit-and-push] Created snapshot: ${snapshotId}`,
         );
@@ -473,7 +472,6 @@ export async function getCodegenTools(
   const [freestyleTools, neonTools, context7Tools] = await Promise.all([
     createFreestyleTools(
       project.repoId,
-      project.neonProjectId,
       project.id,
       assistantMessageId,
       runtimeContext,

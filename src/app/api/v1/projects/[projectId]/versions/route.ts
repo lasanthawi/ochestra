@@ -13,6 +13,7 @@ import { requestDevServer } from "@/lib/dev-server";
 import { decrypt } from "@/lib/encryption";
 import { z } from "zod";
 import { parseRequestJson } from "@/lib/parser-utils";
+import { getNeonProjectId } from "@/backends/neon/getNeonProjectId";
 
 const restoreVersionSchema = z.object({
   versionId: z.string().trim().min(1, "Version ID is required"),
@@ -169,9 +170,15 @@ export async function POST(req: Request, { params }: RouteParams) {
     );
     console.log("[POST Restore Version] Git reset successful");
 
+    if (project.backendType !== "neon") {
+      throw new Error(`Restore currently supports Neon projects only. Received: ${project.backendType}`);
+    }
+
+    const neonProjectId = getNeonProjectId(project);
+
     // Step 4: Get the main branch ID for Neon
     console.log("[POST Restore Version] Getting main branch ID...");
-    const branches = await neonService.getAllBranches(project.neonProjectId);
+    const branches = await neonService.getAllBranches(neonProjectId);
     const mainBranch = branches.find(
       (b) => b.name === "main" || b.name === "master" || !b.parent_id,
     );
@@ -188,7 +195,7 @@ export async function POST(req: Request, { params }: RouteParams) {
       version.neonSnapshotId,
     );
     await neonService.applySnapshot(
-      project.neonProjectId,
+      neonProjectId,
       version.neonSnapshotId,
       mainBranch.id,
     );

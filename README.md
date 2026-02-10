@@ -1,5 +1,7 @@
 # Aileen - AI Code Generation Platform
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/lasanthawi/ochestra)
+
 Full stack application codegen platform.
 
 ## About
@@ -66,10 +68,10 @@ Services:
 Copy the example environment file and fill in your API keys from the services above:
 
 ```bash
-cp example.env .env
+cp .env.example .env
 ```
 
-All required environment variables are documented in `example.env`.
+All required environment variables are documented in `.env.example`.
 
 **Encryption**: Stored project secrets and API keys are encrypted at rest. You need to set the `ENCRYPTION_KEY` environment variable for this. Generate a new encryption key by running `bun run scripts/get-encryption-key.ts`.
 
@@ -107,17 +109,29 @@ Your application will be available at `http://localhost:3000`.
 
 ## Deployment
 
-Aileen requires deployment to two separate cloud platforms:
+### One-click Vercel deployment (recommended)
 
-### Mastra Cloud (Agent Deployment)
+Use the **Deploy with Vercel** button above to import and deploy this repository in one flow.
 
-Deploy the Mastra agent to Mastra Cloud for production agent execution. Add all required environment variables to your Mastra Cloud project configuration.
+This repository is configured for Bun builds on Vercel via `vercel.json` and `bun run vercel:build`.
 
-### Vercel (Next.js Deployment)
+The build script supports guarded database migrations:
 
-Deploy the Next.js application to Vercel. Ensure all environment variables from your `.env` file are added to the Vercel project environment settings.
+- `RUN_DB_MIGRATIONS=1` → run `db:migrate` during build
+- unset or any other value → skip migrations
 
-For complete deployment instructions, refer to the official documentation for [Mastra Cloud](https://mastra.ai) and [Vercel](https://vercel.com/docs).
+Recommended first deploy flow:
+
+1. Set required env vars in Vercel project settings
+2. Temporarily set `RUN_DB_MIGRATIONS=1`
+3. Deploy once
+4. Set `RUN_DB_MIGRATIONS=0` (or remove it) for regular redeploys
+
+### Split deployment option
+
+If you prefer to keep agents separately hosted, you can deploy Next.js on Vercel and run Mastra separately.
+
+For complete platform docs, refer to [Mastra](https://mastra.ai) and [Vercel](https://vercel.com/docs).
 
 ## Aileen in Production
 

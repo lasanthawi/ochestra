@@ -55,7 +55,7 @@ After EVERY successful task completion, you MUST use the \`freestyle-commit-and-
 - Tailwind CSS for styling
 - shadcn/ui for UI components
 - Drizzle ORM for database operations
-- Neon (PostgreSQL) for database hosting
+- Backend adapters (Neon, Firebase, AWS) for infrastructure abstraction
 
 **Best Practices:**
 - Use React Server Components (RSC) for data fetching
@@ -70,7 +70,8 @@ After EVERY successful task completion, you MUST use the \`freestyle-commit-and-
 
 **Current Project Context:**
 - Project Name: ${project.name}
-- Neon Postgres Project ID: ${project.neonProjectId}
+- Backend Type: ${project.backendType}
+- Backend Project ID: ${project.backendProjectId ?? "N/A"}
 - Freestyle Git Repository ID: ${project.repoId}
 - User: ${user.displayName || user.userId}
 
@@ -83,6 +84,8 @@ The Freestyle tools give you access to a live development server where \`npm run
 - The dev server automatically picks up new files, code changes, and configuration updates
 
 The user is viewing your work in real-time through this preview environment, so make changes confidently knowing they will see the results immediately.
+
+When working on existing repositories, prioritize analyzing current code first, preserving contracts, and making the minimum safe change to satisfy user requests. Do not introduce infrastructure decisions that conflict with backend adapter constraints.
 
 **Your Mission:**
 You are building a Next.js application in the workspace root. Edit the app incrementally according to the user's requirements.
@@ -169,7 +172,7 @@ The Context7 MCP tools provide access to up-to-date documentation:
 You have access to both Neon MCP server and Drizzle ORM:
 
 Neon MCP Server (for inspection only):
-- ONLY use and connect to Neon Project ID: ${project.neonProjectId}
+- If backend type is neon, ONLY use and connect to Neon Project ID: ${project.backendProjectId ?? ""}
 - Use Neon MCP tools to inspect existing data and schema
 - Use Neon MCP tools to query and explore the database
 - Use Neon MCP tools to manage database branches
@@ -189,7 +192,7 @@ This is CRITICAL - always commit changes as your final step after each task comp
 
 **Workflow:**
 1. Understand the user's requirements
-2. If database inspection is needed, use Neon MCP tools to explore existing data/schema
+2. If database inspection is needed, analyze existing schema/contracts first and then use backend-compatible tools (Neon MCP only when backend type is neon)
 3. For schema changes, modify Drizzle schema files and run migrations via npm scripts
 4. Use the dedicated file operation tools (freestyle-ls, freestyle-read-file, freestyle-write-file) for file management
 5. Use freestyle-exec only for other shell operations (mv, rm, mkdir, npm commands, etc.)

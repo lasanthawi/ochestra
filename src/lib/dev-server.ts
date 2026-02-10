@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { freestyleService } from "./freestyle";
 import { neonService } from "./neon";
 import { decrypt } from "@/lib/encryption";
+import { getNeonProjectId } from "@/backends/neon/getNeonProjectId";
 
 /**
  * Request a dev server for a project with automatic secret management
@@ -92,9 +93,12 @@ export async function requestDevServer(
   const url = new URL(devServerResponse.ephemeralUrl);
   const domain = `${url.protocol}//${url.host}`;
 
-  console.log("[DevServer] Allowlisting domain in Neon Auth:", domain);
-  await neonService.addAuthDomain(project.neonProjectId, domain);
-  console.log("[DevServer] Domain allowlisted successfully");
+  if (project.backendType === "neon") {
+    const neonProjectId = getNeonProjectId(project);
+    console.log("[DevServer] Allowlisting domain in Neon Auth:", domain);
+    await neonService.addAuthDomain(neonProjectId, domain);
+    console.log("[DevServer] Domain allowlisted successfully");
+  }
 
   return devServerResponse;
 }

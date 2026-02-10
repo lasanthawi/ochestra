@@ -8,6 +8,7 @@ import {
 import { eq, inArray } from "drizzle-orm";
 import { freestyleService } from "@/lib/freestyle";
 import { neonService } from "@/lib/neon";
+import { getBackendAdapter } from "@/backends/getBackendAdapter";
 import { requestDevServer } from "@/lib/dev-server";
 import { encrypt, decrypt } from "@/lib/encryption";
 import { deleteAssistantThread } from "@/lib/assistant-ui";
@@ -125,14 +126,16 @@ export function buildSecretsFromNeonAuth(
   };
 }
 
-export async function createNeonSnapshot(neonProjectId: string) {
+export async function createBackendSnapshot(project: Project) {
   "use step";
-  console.log("[Projects] Creating Neon snapshot...");
-  const snapshotId = await neonService.createSnapshot(neonProjectId, {
-    name: `checkpoint-${Date.now()}`,
+  console.log("[Projects] Creating backend snapshot...", {
+    backendType: project.backendType,
   });
-  console.log("[Projects] Checkpoint snapshot created:", snapshotId);
-  return snapshotId;
+
+  const backend = getBackendAdapter(project);
+  const snapshot = await backend.snapshot(project.id);
+  console.log("[Projects] Checkpoint snapshot created:", snapshot.id);
+  return snapshot.id;
 }
 
 export async function createCheckpointVersion(
@@ -201,6 +204,28 @@ export async function deleteNeonProject(neonProjectId: string) {
   console.log("[DELETE Project] Deleting Neon project:", neonProjectId);
   await neonService.deleteProject(neonProjectId);
   console.log("[DELETE Project] Neon project deleted successfully");
+}
+
+export async function deleteBackendProject(project: Project) {
+  "use step";
+  console.log("[DELETE Project] Deleting backend project:", {
+    projectId: project.id,
+    backendType: project.backendType,
+  });
+
+  const backend = getBackendAdapter(project);
+  await backend.destroy(project.id);
+  console.log("[DELETE Project] Backend project deleted successfully");
+}
+
+export async function buildBackendEnv(project: Project) {
+  "use step";
+  console.log("[Projects] Building backend environment...", {
+    backendType: project.backendType,
+  });
+
+  const backend = getBackendAdapter(project);
+  return backend.buildEnv(project.id);
 }
 
 export async function deleteAssistantUIThread(
