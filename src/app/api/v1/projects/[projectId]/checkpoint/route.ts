@@ -66,9 +66,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     console.log("[POST Checkpoint] Triggering checkpoint workflow...");
 
     await start(createManualCheckpoint, [
-      projectId,
-      project.repoId,
-      project.neonProjectId,
+      project,
       project.currentDevVersionId,
       assistantMessageId,
     ]);

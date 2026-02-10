@@ -7,12 +7,12 @@ import {
   saveProjectSecrets,
   setCurrentDevVersion,
   buildSecretsFromNeonAuth,
-  createNeonSnapshot,
+  createBackendSnapshot,
   createCheckpointVersion,
   copyProjectSecrets,
   warmUpDevServer,
   deleteFreestyleRepository,
-  deleteNeonProject,
+  deleteBackendProject,
   deleteAssistantUIThread,
   getProjectVersionIds,
   clearCurrentDevVersion,
@@ -24,14 +24,20 @@ import { Project } from "@/lib/db/schema";
 
 export async function initalizeFirstProjectVersion(project: Project) {
   "use workflow";
-  const prodBranch = await getNeonProductionBranch(project.neonProjectId);
+  if (project.backendType !== "neon" || !project.backendProjectId) {
+    throw new Error(
+      `Initial version workflow currently supports Neon only. Received: ${project.backendType}`,
+    );
+  }
+
+  const prodBranch = await getNeonProductionBranch(project.backendProjectId);
 
   const [neonAuth, databaseUrl, initialCommitHash, initialSnapshotId] =
     await Promise.all([
-      initNeonAuth(project.neonProjectId, prodBranch.id),
-      getDatabaseConnectionUri(project.neonProjectId),
+      initNeonAuth(project.backendProjectId, prodBranch.id),
+      getDatabaseConnectionUri(project.backendProjectId),
       getLatestCommitHash(project.repoId),
-      createNeonSnapshot(project.neonProjectId),
+      createBackendSnapshot(project),
     ]);
 
   const initialVersion = await createInitialVersion(
@@ -51,20 +57,18 @@ export async function initalizeFirstProjectVersion(project: Project) {
 }
 
 export async function createManualCheckpoint(
-  projectId: string,
-  repoId: string,
-  neonProjectId: string,
+  project: Project,
   currentDevVersionId: string,
   assistantMessageId: string | null,
 ) {
   "use workflow";
   const [currentCommitHash, snapshotId] = await Promise.all([
-    getLatestCommitHash(repoId),
-    createNeonSnapshot(neonProjectId),
+    getLatestCommitHash(project.repoId),
+    createBackendSnapshot(project),
   ]);
 
   const checkpointVersion = await createCheckpointVersion(
-    projectId,
+    project.id,
     currentCommitHash,
     snapshotId,
     assistantMessageId,
@@ -72,7 +76,7 @@ export async function createManualCheckpoint(
 
   await Promise.all([
     copyProjectSecrets(currentDevVersionId, checkpointVersion.id),
-    setCurrentDevVersion(projectId, checkpointVersion.id),
+    setCurrentDevVersion(project.id, checkpointVersion.id),
   ]);
 
   return { success: true, versionId: checkpointVersion.id };
@@ -99,7 +103,7 @@ export async function deleteProject(project: Project) {
   // Delete external resources in parallel
   await Promise.all([
     deleteFreestyleRepository(project.repoId),
-    deleteNeonProject(project.neonProjectId),
+    deleteBackendProject(project),
     deleteAssistantUIThread(project.userId, project.threadId),
   ]);
 

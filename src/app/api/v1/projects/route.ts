@@ -13,6 +13,9 @@ import { parseRequestJson } from "@/lib/parser-utils";
 
 const createProjectSchema = z.object({
   name: z.string().trim().min(1, "Project name is required"),
+  backendType: z.enum(["neon", "firebase", "aws"]).default("neon"),
+  repoType: z.enum(["template", "existing"]).default("template"),
+  repoUrl: z.string().url().optional(),
 });
 
 export async function POST(request: Request) {
@@ -30,15 +33,29 @@ export async function POST(request: Request) {
     if (error) {
       return error;
     }
-    const { name } = data;
+    const { name, backendType, repoType, repoUrl } = data;
 
     console.log("[API] Create project request from user:", user.id);
     console.log("[API] Project name:", name);
 
-    // Create repo in Freestyle, Neon project, and AssistantCloud thread in parallel
+    // Create repo in Freestyle, backend project (Neon for now), and AssistantCloud thread in parallel
     console.log(
       "[API] Calling Freestyle, Neon, and AssistantCloud APIs in parallel...",
     );
+    if (repoType === "existing" && !repoUrl) {
+      return NextResponse.json(
+        { error: "repoUrl is required when repoType is 'existing'" },
+        { status: 400 },
+      );
+    }
+
+    if (backendType !== "neon") {
+      return NextResponse.json(
+        { error: `Unsupported backend type: ${backendType}` },
+        { status: 400 },
+      );
+    }
+
     const [{ repoId }, { neonProjectId, databaseUrl }, threadId] =
       await Promise.all([
         freestyleService.createRepo({ name }),
@@ -59,7 +76,8 @@ export async function POST(request: Request) {
     console.log("[API] Insert values:", {
       name,
       repoId,
-      neonProjectId,
+      backendType,
+      backendProjectId: neonProjectId,
       threadId,
       userId: user.id,
     });
@@ -69,7 +87,8 @@ export async function POST(request: Request) {
       .values({
         name,
         repoId,
-        neonProjectId,
+        backendType,
+        backendProjectId: neonProjectId,
         threadId,
         userId: user.id,
       })
