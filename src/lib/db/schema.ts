@@ -22,7 +22,8 @@ export const projectsTable = pgTable("projects", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   repoId: text("repo_id").notNull(),
-  neonProjectId: text("neon_project_id").notNull(),
+  backendType: text("backend_type").notNull(),
+  backendProjectId: text("backend_project_id"),
   threadId: text("thread_id").notNull(),
   userId: text("user_id")
     .notNull()

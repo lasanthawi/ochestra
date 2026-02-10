@@ -8,6 +8,7 @@ import { neonService } from "@/lib/neon";
 import { freestyleService } from "@/lib/freestyle";
 import { decrypt } from "@/lib/encryption";
 import { mainConfig } from "@/lib/config";
+import { getNeonProjectId } from "@/backends/neon/getNeonProjectId";
 
 interface RouteParams {
   params: Promise<{
@@ -61,23 +62,27 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     console.log("[Deploy API] Deploying to domain:", customDomain);
 
+    if (project.backendType !== "neon") {
+      return NextResponse.json(
+        { error: `Deployment currently supports Neon projects only. Received: ${project.backendType}` },
+        { status: 400 },
+      );
+    }
+
+    const neonProjectId = getNeonProjectId(project);
+
     // Whitelist the deployment URL in Neon Auth
     console.log(
       "[Deploy API] Whitelisting domain in Neon Auth:",
       deploymentUrl,
     );
     try {
-      await neonService.addAuthDomain(project.neonProjectId, deploymentUrl);
+      await neonService.addAuthDomain(neonProjectId, deploymentUrl);
       console.log("[Deploy API] Domain whitelisted successfully");
     } catch (error) {
       console.error("[Deploy API] Failed to whitelist domain:", error);
       // Continue with deployment even if whitelisting fails
     }
-
-    // Get the database connection URI
-    const databaseUrl = await neonService.getConnectionUri({
-      projectId: project.neonProjectId,
-    });
 
     // Fetch secrets for the current dev version
     console.log(
