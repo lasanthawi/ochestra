@@ -85,6 +85,13 @@
       "when": 1762640340547,
       "tag": "0011_bent_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1770755668487,
+      "tag": "0012_backend_adapters",
+      "breakpoints": true
     }
   ]
 }
