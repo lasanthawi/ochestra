@@ -16,7 +16,7 @@
       "args": ["-y", "@mastra/mcp-docs-server"]
     },
     "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/andre-landgraf/aileen"
+      "url": "https://mcp.sentry.dev/mcp/andre-landgraf/orchestral-brain"
     }
   }
 }

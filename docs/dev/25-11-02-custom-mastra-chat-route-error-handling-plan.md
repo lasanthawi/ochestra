@@ -189,7 +189,7 @@ function isOutOfFundsError(error: any): boolean {
  */
 function getEnhancedErrorMessage(error: any): string {
   if (isOutOfFundsError(error)) {
-    return "Demo is out of funds! Thanks for trying out Aileen. To continue using Aileen, you can run it locally with your own API credentials. Setup instructions: https://github.com/andrelandgraf/aileen#getting-started\n\nYou'll need:\n- Anthropic API key (for Claude)\n- Neon account (database)\n- Freestyle account (dev servers)\n- Assistant UI account";
+    return "Demo is out of funds! Thanks for trying out Orchestral brain. To continue using Orchestral brain, you can run it locally with your own API credentials. Setup instructions: https://github.com/lasanthawi/ochestra#getting-started\n\nYou'll need:\n- Anthropic API key (for Claude)\n- Neon account (database)\n- Freestyle account (dev servers)\n- Assistant UI account";
   }
 
   const errorMessage =

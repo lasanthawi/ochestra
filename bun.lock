@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "aileen",
+      "name": "orchestral-brain",
       "dependencies": {
         "@ai-sdk/anthropic": "^2.0.31",
         "@ai-sdk/google": "^2.0.29",

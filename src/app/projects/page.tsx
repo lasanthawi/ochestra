@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold">Aileen</h1>
+            <h1 className="text-xl font-bold">Orchestral brain</h1>
             <nav className="flex items-center gap-4">
               <span className="text-sm font-medium text-primary">Projects</span>
             </nav>

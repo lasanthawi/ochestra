@@ -1,16 +1,16 @@
-# Aileen - AI Code Generation Platform
+# Orchestral brain - Fullstack agent
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/lasanthawi/ochestra)
 
-Full stack application codegen platform.
+Fullstack AI agent for code generation and app development.
 
 ## About
 
-Aileen is a vibe-coding/code-generation platform that builds Next.js applications with Neon databases based on natural language prompts.
+Orchestral brain is a fullstack agent that builds Next.js applications with Neon databases based on natural language prompts.
 
-Each Aileen project is a standalone, version-controlled Next.js application with its own Neon database that is fully developed and managed by the Aileen agent.
+Each Orchestral brain project is a standalone, version-controlled Next.js application with its own Neon database that is fully developed and managed by the Orchestral brain agent.
 
-You can find a detailed blog post about Aileen [here](https://neon.com/blog/how-to-build-a-full-stack-ai-agent).
+You can find a detailed blog post about building fullstack AI agents [here](https://neon.com/blog/how-to-build-a-full-stack-ai-agent).
 
 ### Key Features
 
@@ -44,7 +44,7 @@ Each created project includes the following provisioned resources/services:
 
 ## Getting Started
 
-Follow these steps to run Aileen locally:
+Follow these steps to run Orchestral brain locally:
 
 ### Prerequisites
 
@@ -91,7 +91,7 @@ bun run db:migrate
 
 ### Development
 
-Aileen runs on two separate servers in development. The Mastra server must be running concurrently for code-generation capabilities.
+Orchestral brain runs on two separate servers in development. The Mastra server must be running concurrently for code-generation capabilities.
 
 Run the web server:
 
@@ -134,11 +134,11 @@ If you prefer to keep agents separately hosted, you can deploy Next.js on Vercel
 
 For complete platform docs, refer to [Mastra](https://mastra.ai) and [Vercel](https://vercel.com/docs).
 
-## Aileen in Production
+## Orchestral brain in Production
 
 In production, you likely want to have two separate Neon organizations:
 
-- **Company Organization** - Hosts the Aileen platform database (users, projects, versions, secrets)
+- **Company Organization** - Hosts the Orchestral brain platform database (users, projects, versions, secrets)
 - **Multi-Tenant Agent Organization** - Hosts all agent-managed codegen application databases
 
 This separation provides better resource isolation, cost tracking, and management of the agent-created databases. For detailed information about scaling agent platforms on Neon, see [Neon for AI Agent Platforms](https://neon.com/agents).

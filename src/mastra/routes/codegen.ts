@@ -27,7 +27,7 @@ function getEnhancedErrorMessage(
     }
 
     // Platform key error
-    return "Snap! Y'all drained our Anthropic API credits! We're honored you're interested in Aileen and we'll look into this soon! In the meantime, you can keep the party going by clicking the model selector in the navbar and providing your own API key. Or, clone the repo and fire it up locally with your own keys - it's all yours!";
+    return "Snap! Y'all drained our Anthropic API credits! We're honored you're interested in Orchestral brain and we'll look into this soon! In the meantime, you can keep the party going by clicking the model selector in the navbar and providing your own API key. Or, clone the repo and fire it up locally with your own keys - it's all yours!";
   }
 
   const errorMessage =

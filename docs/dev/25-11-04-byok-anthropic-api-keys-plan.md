@@ -5,7 +5,7 @@
 
 ## Problem Statement
 
-Currently, Aileen uses platform-provided Anthropic API keys, which means:
+Currently, Orchestral brain uses platform-provided Anthropic API keys, which means:
 
 - Users are limited by platform quota and rate limits
 - When platform credits run out, all users are affected

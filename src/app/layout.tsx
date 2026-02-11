@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aileen - Open Source CodeGen",
-  description: "Open source code generation powered by AI",
+  title: "Orchestral brain - Fullstack agent",
+  description: "Fullstack AI agent for code generation and app development",
 };
 
 export default function RootLayout({

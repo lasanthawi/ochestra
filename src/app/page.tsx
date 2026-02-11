@@ -14,10 +14,10 @@ export default async function Home() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-gradient-to-b from-background to-muted">
       <div className="mx-auto max-w-2xl px-4 text-center">
         <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
-          Aileen
+          Orchestral brain
         </h1>
         <p className="mt-6 text-xl text-muted-foreground sm:text-2xl">
-          Open Source CodeGen
+          Fullstack agent
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <Button asChild size="lg">

@@ -35,7 +35,7 @@ Implement cookie-based persistence for the model selection preference with clean
 
 ### Cookie Strategy
 
-- **Name:** `aileen_model_selection`
+- **Name:** `orchestral_brain_model_selection`
 - **Scope:** Client-side cookie (not httpOnly) since this is purely a UI preference
 - **Expiration:** 90 days (reasonable balance between persistence and privacy)
 - **Domain:** Default (current domain)
@@ -208,7 +208,7 @@ import { getJsonCookie, setJsonCookie, deleteCookie } from "@/lib/cookies";
 import type { ModelSelection } from "./types";
 import { DEFAULT_MODEL_SELECTION } from "./types";
 
-const COOKIE_NAME = "aileen_model_selection";
+const COOKIE_NAME = "orchestral_brain_model_selection";
 const COOKIE_MAX_AGE = 90 * 24 * 60 * 60; // 90 days in seconds
 
 /**
@@ -707,7 +707,7 @@ src/
 ## Notes
 
 - Cookie is client-side only (no server-side rendering impact)
-- Cookie name prefixed with `aileen_` to avoid conflicts
+- Cookie name prefixed with `orchestral_brain_` to avoid conflicts
 - 90-day expiration is arbitrary - could be adjusted based on user feedback
 - If we add more models in future, the JSON structure easily accommodates new options
 - Consider adding a "Reset to Default" option in the model selector UI

@@ -3,7 +3,7 @@ import type { ModelSelection } from "./types";
 import { DEFAULT_MODEL_SELECTION } from "./types";
 import type { cookies } from "next/headers";
 
-export const COOKIE_NAME = "aileen_model_selection";
+export const COOKIE_NAME = "orchestral_brain_model_selection";
 export const COOKIE_MAX_AGE = 90 * 24 * 60 * 60; // 90 days in seconds
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
