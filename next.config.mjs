@@ -1,4 +1,7 @@
 import { withSentryConfig } from "@sentry/nextjs";
+import workflowNext from "workflow/next";
+
+const { withWorkflow } = workflowNext;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -22,8 +25,7 @@ const nextConfig = {
   },
 };
 
-// Temporarily run without the Workflow DevKit Next.js plugin
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withWorkflow(nextConfig, {}), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 

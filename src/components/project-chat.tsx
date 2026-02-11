@@ -32,6 +32,7 @@ import {
   ArrowLeft,
   MoreVertical,
   ChevronDown,
+  GitBranch,
 } from "lucide-react";
 import { ModelSelectorModal } from "@/components/model-selector-modal";
 import { useModelSelection } from "@/lib/model-selection/hooks";
@@ -165,6 +166,10 @@ const ProjectChatContent = ({
             </Link>
             <h1 className="text-lg font-semibold">{projectName}</h1>
             <VersionsDropdown projectId={projectId} accessToken={accessToken} />
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <GitBranch className="h-3.5 w-3.5" />
+              Design → Develop → Test → Deploy
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Button

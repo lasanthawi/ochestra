@@ -114,38 +114,51 @@ const ThreadWelcome: FC = () => {
 };
 
 const ThreadSuggestions: FC = () => {
+  const suggestions = [
+    {
+      title: "Plan & design",
+      label: "outline architecture before coding",
+      action:
+        "Plan and design the architecture for my app. Outline features, components, data model, and API routes before we start coding.",
+    },
+    {
+      title: "Build a feature",
+      label: "e.g. todo app with CRUD",
+      action: "Create a simple todo app with CRUD operations and database persistence",
+    },
+    {
+      title: "Run tests",
+      label: "and fix any failures",
+      action: "Run the project tests and fix any failures. Use npm test or npm run test.",
+    },
+    {
+      title: "Prepare for deploy",
+      label: "check build, migrations, env",
+      action:
+        "Help me prepare for deployment: verify the build passes, migrations are applied, and required env vars are documented.",
+    },
+    {
+      title: "Explain my database",
+      label: "show schema and tables",
+      action: "Explain my database project - show me the schema and tables",
+    },
+    {
+      title: "Explain the app setup",
+      label: "architecture and structure",
+      action:
+        "Explain the current application setup - the architecture and structure",
+    },
+  ];
   return (
-    <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2">
-      {[
-        {
-          title: "Replace the home page",
-          label: 'with "Hello World!"',
-          action: 'Replace the home page content with "Hello World!"',
-        },
-        {
-          title: "Create a simple todo app",
-          label: "with CRUD operations",
-          action: "Create a simple todo app with CRUD operations",
-        },
-        {
-          title: "Explain my database project",
-          label: "show schema and tables",
-          action: "Explain my database project - show me the schema and tables",
-        },
-        {
-          title: "Explain the application setup",
-          label: "architecture and structure",
-          action:
-            "Explain the current application setup to me - the architecture and structure",
-        },
-      ].map((suggestedAction, index) => (
+    <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2 @lg:grid-cols-3">
+      {suggestions.map((suggestedAction, index) => (
         <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ delay: 0.05 * index }}
           key={`suggested-action-${suggestedAction.title}-${index}`}
-          className="aui-thread-welcome-suggestion-display [&:nth-child(n+3)]:hidden @md:[&:nth-child(n+3)]:block"
+          className="aui-thread-welcome-suggestion-display [&:nth-child(n+3)]:hidden @md:[&:nth-child(n+3)]:block [&:nth-child(n+5)]:hidden @lg:[&:nth-child(n+5)]:block"
         >
           <ThreadPrimitive.Suggestion
             prompt={suggestedAction.action}

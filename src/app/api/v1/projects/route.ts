@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { stackServerApp } from "@/lib/stack/server";
 import { db } from "@/lib/db/db";
-import { projectsTable } from "@/lib/db/schema";
+import { projectsTable, usersTable } from "@/lib/db/schema";
 import { freestyleService } from "@/lib/freestyle";
 import { createAssistantThread } from "@/lib/assistant-ui";
 import { neonService } from "@/lib/neon";
@@ -56,9 +56,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const sourceUrl =
+      repoType === "existing" && repoUrl
+        ? repoUrl
+        : "https://github.com/andrelandgraf/neon-freestyle-template";
+
     const [{ repoId }, { neonProjectId, databaseUrl }, threadId] =
       await Promise.all([
-        freestyleService.createRepo({ name }),
+        freestyleService.createRepo({ name, sourceUrl }),
         neonService.createProject(name),
         createAssistantThread(user.id, name),
       ]);
@@ -70,6 +75,23 @@ export async function POST(request: Request) {
     try {
       freestyleService.initializeRawDevServer(repoId);
     } catch (_) {}
+
+    // Ensure user exists in neon_auth.users_sync (required for FK). Neon Auth may not have
+    // synced the Stack user yet; we upsert so the project insert can succeed.
+    const rawJson = {
+      id: user.id,
+      displayName: user.displayName ?? null,
+      primaryEmail: user.primaryEmail ?? null,
+    };
+    await db
+      .insert(usersTable)
+      .values({
+        id: user.id,
+        rawJson,
+        name: user.displayName ?? null,
+        email: user.primaryEmail ?? null,
+      })
+      .onConflictDoNothing({ target: usersTable.id });
 
     // Create project in database with Freestyle repoId, Neon project ID, and thread ID
     console.log("[API] Inserting project into database...");
