@@ -1,7 +1,8 @@
+import { createRequire } from "node:module";
 import { withSentryConfig } from "@sentry/nextjs";
-import workflowNext from "workflow/next";
 
-const { withWorkflow } = workflowNext;
+const require = createRequire(import.meta.url);
+const { withWorkflow } = require("workflow/next");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
