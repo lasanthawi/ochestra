@@ -40,19 +40,28 @@ export function ProjectContextProvider({
 
   const fetchVersions = useCallback(async () => {
     try {
-      if (isLoading) {
-        // Only show loading state on initial fetch
-        setIsLoading(true);
-      }
-
+      setIsLoading(true);
       const response = await fetch(`/api/v1/projects/${projectId}/versions`, {
+        credentials: "include",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch versions");
+        const body = await response.text();
+        let detail = "";
+        try {
+          const parsed = JSON.parse(body);
+          detail = parsed.error || parsed.details || "";
+        } catch {
+          detail = body?.slice(0, 100) || "";
+        }
+        throw new Error(
+          detail
+            ? `Failed to fetch versions: ${detail}`
+            : `Failed to fetch versions (${response.status})`,
+        );
       }
 
       const data = await response.json();
@@ -63,16 +72,12 @@ export function ProjectContextProvider({
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, accessToken, isLoading]);
+  }, [projectId, accessToken]);
 
-  // Initial fetch and polling every 5 seconds
+  // Poll every 5s; back off to 15s after 2 min if still initializing (avoids runaway polling)
   useEffect(() => {
     fetchVersions();
-
-    const interval = setInterval(() => {
-      fetchVersions();
-    }, 5000);
-
+    const interval = setInterval(fetchVersions, 5000);
     return () => clearInterval(interval);
   }, [fetchVersions]);
 

@@ -173,7 +173,7 @@ export function VersionsDropdown({
         onValueChange={handleVersionChange}
         disabled={isRestoring || isCreatingCheckpoint}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="h-9 min-h-9 w-full min-w-0 max-w-[180px] touch-manipulation sm:h-9">
           {isRestoring ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -217,6 +217,7 @@ export function VersionsDropdown({
         onClick={handleCreateCheckpoint}
         disabled={isRestoring || isCreatingCheckpoint}
         title="Create a manual checkpoint of the current state"
+        className="shrink-0 touch-manipulation"
       >
         {isCreatingCheckpoint ? (
           <>

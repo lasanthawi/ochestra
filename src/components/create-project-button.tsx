@@ -88,12 +88,13 @@ export function CreateProjectButton() {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="lg">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          New Project
+        <Button size="lg" className="touch-manipulation sm:min-h-10">
+          <PlusIcon className="mr-2 h-4 w-4 shrink-0" />
+          <span className="hidden sm:inline">New Project</span>
+          <span className="sm:hidden">New</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>

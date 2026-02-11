@@ -33,6 +33,8 @@ import {
   MoreVertical,
   ChevronDown,
   GitBranch,
+  MessageSquare,
+  Monitor,
 } from "lucide-react";
 import { ModelSelectorModal } from "@/components/model-selector-modal";
 import { useModelSelection } from "@/lib/model-selection/hooks";
@@ -41,6 +43,28 @@ import { useEffect, useState } from "react";
 import { FreestyleDevServer } from "freestyle-sandboxes/react/dev-server";
 import { requestDevServer } from "@/actions/preview-actions";
 import Link from "next/link";
+
+function InitializingPlaceholder() {
+  const [stuck, setStuck] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setStuck(true), 60000);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 px-6">
+      <div className="space-y-2 text-center">
+        <div className="text-muted-foreground">Initializing project...</div>
+        <Skeleton className="mx-auto h-4 w-48" />
+      </div>
+      {stuck && (
+        <p className="max-w-sm text-center text-sm text-amber-600 dark:text-amber-400">
+          Taking longer than usual. The workflow may have failed — try refreshing
+          or creating a new project.
+        </p>
+      )}
+    </div>
+  );
+}
 
 interface ProjectChatProps {
   projectId: string;
@@ -51,14 +75,87 @@ interface ProjectChatProps {
   initialModelSelection: ModelSelection;
 }
 
-const ProjectChatContent = ({
+/** Renders loading/config states. Chat UI only mounts when we have Assistant Cloud URL. */
+const ProjectChatContent = (props: ProjectChatProps) => {
+  const [assistantCloudUrl, setAssistantCloudUrl] = useState<string | false | null>(null);
+  useEffect(() => {
+    const url =
+      process.env.NEXT_PUBLIC_ASSISTANT_CLOUD_API_URL ||
+      (process.env.NEXT_PUBLIC_ASSISTANT_BASE_URL?.includes("proj-")
+        ? process.env.NEXT_PUBLIC_ASSISTANT_BASE_URL
+        : null);
+    setAssistantCloudUrl(url || false);
+  }, []);
+
+  if (assistantCloudUrl === null) {
+    return (
+      <div className="flex h-dvh flex-col">
+        <header className="flex shrink-0 items-center justify-between border-b px-4 py-2">
+          <div className="h-5 w-5" />
+          <Skeleton className="h-5 w-20" />
+          <div className="h-8 w-8" />
+        </header>
+        <div className="flex flex-1 items-center justify-center">
+          <Skeleton className="h-12 w-48" />
+        </div>
+      </div>
+    );
+  }
+
+  if (assistantCloudUrl === false) {
+    return (
+      <div className="flex min-h-dvh flex-col">
+        <header className="flex shrink-0 items-center justify-between gap-2 border-b bg-background px-4 py-2">
+          <Link
+            href="/projects"
+            className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="truncate text-lg font-semibold">{props.projectName}</h1>
+        </header>
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-left max-w-md">
+            <p className="font-medium text-amber-700 dark:text-amber-400">
+              Assistant Cloud not configured
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Add <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">NEXT_PUBLIC_ASSISTANT_CLOUD_API_URL</code> to your <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">.env</code> with your project URL (e.g.{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">https://proj-XXXXX.assistant-api.com</code>
+              ) from{" "}
+              <a
+                href="https://cloud.assistant-ui.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                cloud.assistant-ui.com
+              </a>
+              .
+            </p>
+          </div>
+          <ProfileButton />
+        </div>
+      </div>
+    );
+  }
+
+  return <ProjectChatWithCloud {...props} assistantCloudUrl={assistantCloudUrl} />;
+};
+
+interface ProjectChatWithCloudProps extends ProjectChatProps {
+  assistantCloudUrl: string;
+}
+
+const ProjectChatWithCloud = ({
   projectId,
   projectName,
   repoId,
   threadId,
   accessToken,
   initialModelSelection,
-}: ProjectChatProps) => {
+  assistantCloudUrl,
+}: ProjectChatWithCloudProps) => {
   const { currentVersionId } = useProjectData();
   const { devServerUrl, codeServerUrl, deploymentUrl } = useDevServerData();
   const [isDeploying, setIsDeploying] = useState(false);
@@ -68,9 +165,9 @@ const ProjectChatContent = ({
     validatePersonalProvider: true,
   });
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
 
-  // Wrap the action to include projectId
-  const wrappedRequestDevServer = async (args: { repoId: string }) => {
+  const wrappedRequestDevServer = async (args?: { repoId: string }) => {
     return await requestDevServer({ projectId });
   };
 
@@ -92,14 +189,13 @@ const ProjectChatContent = ({
   };
 
   const cloud = new AssistantCloud({
-    baseUrl: process.env.NEXT_PUBLIC_ASSISTANT_BASE_URL!,
+    baseUrl: assistantCloudUrl,
     authToken: () =>
       fetch("/api/chat/token", { method: "POST" }).then((r) =>
-        r.json().then((data: any) => data.token),
+        r.json().then((data: { token?: string }) => data.token ?? null),
       ),
   });
 
-  console.log(modelSelection.modelId, modelSelection.provider);
   const runtime = useChatRuntime({
     cloud,
     transport: new AssistantChatTransport({
@@ -146,6 +242,37 @@ const ProjectChatContent = ({
     return modelSelection.modelId;
   };
 
+  const chatPane = (
+    <div className="flex h-full flex-1 flex-col overflow-hidden border-r md:border-r">
+      {isThreadReady && isVersionReady ? (
+        <Thread />
+      ) : (
+        <div className="flex h-full flex-col gap-4 p-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-20 w-3/4" />
+          <Skeleton className="h-20 w-2/3 self-end" />
+          <Skeleton className="h-20 w-3/4" />
+          <Skeleton className="h-20 w-2/3 self-end" />
+          <div className="flex-1" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      )}
+    </div>
+  );
+
+  const previewPane = (
+    <div className="flex flex-1 flex-col overflow-hidden bg-muted">
+      {isVersionReady ? (
+        <FreestyleDevServer
+          actions={{ requestDevServer: wrappedRequestDevServer }}
+          repoId={repoId}
+        />
+      ) : (
+        <InitializingPlaceholder />
+      )}
+    </div>
+  );
+
   return (
     <AssistantRuntimeProvider runtime={runtime}>
       <ModelSelectorModal
@@ -155,36 +282,48 @@ const ProjectChatContent = ({
         selectedModel={modelSelection}
         onModelSelect={updateModelSelection}
       />
-      <div className="flex h-dvh flex-col">
-        <header className="flex items-center justify-between px-4 py-2 border-b">
-          <div className="flex items-center gap-4">
+      <div className="flex h-dvh h-[100dvh] flex-col overflow-hidden">
+        {/* Header - compact on mobile */}
+        <header className="flex shrink-0 items-center justify-between gap-2 border-b bg-background px-3 py-2 sm:px-4">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
             <Link
               href="/projects"
-              className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground touch-manipulation"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-lg font-semibold">{projectName}</h1>
-            <VersionsDropdown projectId={projectId} accessToken={accessToken} />
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+            <h1 className="truncate text-base font-semibold sm:text-lg">
+              {projectName}
+            </h1>
+            <div className="hidden sm:block">
+              <VersionsDropdown projectId={projectId} accessToken={accessToken} />
+            </div>
+            <span className="hidden md:inline-flex items-center gap-1.5 text-xs text-muted-foreground">
               <GitBranch className="h-3.5 w-3.5" />
               Design → Develop → Test → Deploy
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsModelSelectorOpen(true)}
+              className="hidden touch-manipulation sm:inline-flex"
             >
-              <span className="mr-2">{getModelDisplayName()}</span>
+              <span className="mr-2 max-w-20 truncate sm:max-w-none">
+                {getModelDisplayName()}
+              </span>
               <ChevronDown className="h-4 w-4" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <span className="mr-2">Project Options</span>
-                  <MoreVertical className="h-4 w-4" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="touch-manipulation sm:px-3"
+                >
+                  <span className="hidden sm:mr-2 sm:inline">Project Options</span>
+                  <MoreVertical className="h-4 w-4 sm:hidden" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -194,7 +333,7 @@ const ProjectChatContent = ({
                     <DropdownMenuItem
                       onClick={() => window.open(devServerUrl, "_blank")}
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
+                      <ExternalLink className="mr-2 h-4 w-4" />
                       <span>Open Dev Preview</span>
                     </DropdownMenuItem>
                   )}
@@ -202,7 +341,7 @@ const ProjectChatContent = ({
                     <DropdownMenuItem
                       onClick={() => window.open(codeServerUrl, "_blank")}
                     >
-                      <Code2 className="h-4 w-4 mr-2" />
+                      <Code2 className="mr-2 h-4 w-4" />
                       <span>View in VS Code</span>
                     </DropdownMenuItem>
                   )}
@@ -215,7 +354,7 @@ const ProjectChatContent = ({
                       onClick={handleDeploy}
                       disabled={isDeploying}
                     >
-                      <Rocket className="h-4 w-4 mr-2" />
+                      <Rocket className="mr-2 h-4 w-4" />
                       <span>{isDeploying ? "Deploying..." : "Deploy"}</span>
                     </DropdownMenuItem>
                   )}
@@ -223,7 +362,7 @@ const ProjectChatContent = ({
                     <DropdownMenuItem
                       onClick={() => window.open(deploymentUrl, "_blank")}
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
+                      <ExternalLink className="mr-2 h-4 w-4" />
                       <span>View Live Site</span>
                     </DropdownMenuItem>
                   )}
@@ -233,40 +372,54 @@ const ProjectChatContent = ({
             <ProfileButton />
           </div>
         </header>
-        <div className="flex flex-1 overflow-hidden">
-          {/* Chat side */}
-          <div className="flex-1 overflow-hidden border-r">
-            {isThreadReady && isVersionReady ? (
-              <Thread />
-            ) : (
-              <div className="flex flex-col h-full p-4 gap-4">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-20 w-3/4" />
-                <Skeleton className="h-20 w-2/3 self-end" />
-                <Skeleton className="h-20 w-3/4" />
-                <Skeleton className="h-20 w-2/3 self-end" />
-                <div className="flex-1" />
-                <Skeleton className="h-12 w-full" />
-              </div>
-            )}
+
+        {/* Mobile: Versions bar (compact) - only when we have versions */}
+        {currentVersionId && (
+          <div className="flex shrink-0 border-b px-3 py-1.5 sm:hidden">
+            <VersionsDropdown projectId={projectId} accessToken={accessToken} />
           </div>
-          {/* Preview side */}
-          <div className="flex-1 overflow-hidden bg-muted">
-            {isVersionReady ? (
-              <FreestyleDevServer
-                actions={{ requestDevServer: wrappedRequestDevServer }}
-                repoId={repoId}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center space-y-2">
-                  <div className="text-muted-foreground">
-                    Initializing project...
-                  </div>
-                  <Skeleton className="h-4 w-48 mx-auto" />
-                </div>
-              </div>
-            )}
+        )}
+
+        {/* Main content: stacked tabs on mobile, side-by-side on desktop */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Mobile: tabbed view with bottom nav */}
+          <div className="flex w-full flex-1 flex-col md:hidden">
+            <div className="flex-1 overflow-hidden">
+              {mobileTab === "chat" ? chatPane : previewPane}
+            </div>
+            {/* Bottom tab bar - native app style */}
+            <nav className="flex shrink-0 border-t bg-background px-2 pb-[env(safe-area-inset-bottom)] pt-2">
+              <button
+                type="button"
+                onClick={() => setMobileTab("chat")}
+                className={`flex flex-1 touch-manipulation flex-col items-center justify-center gap-0.5 rounded-lg py-2 transition-colors hover:bg-muted/50 ${
+                  mobileTab === "chat"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <MessageSquare className="h-5 w-5" />
+                <span className="text-xs font-medium">Chat</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileTab("preview")}
+                className={`flex flex-1 touch-manipulation flex-col items-center justify-center gap-0.5 rounded-lg py-2 transition-colors hover:bg-muted/50 ${
+                  mobileTab === "preview"
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <Monitor className="h-5 w-5" />
+                <span className="text-xs font-medium">Preview</span>
+              </button>
+            </nav>
+          </div>
+
+          {/* Desktop: side-by-side */}
+          <div className="hidden flex-1 overflow-hidden md:flex">
+            {chatPane}
+            {previewPane}
           </div>
         </div>
       </div>

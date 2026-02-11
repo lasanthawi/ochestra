@@ -116,7 +116,18 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    /* Prevent overscroll bounce on iOS */
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
   body {
     @apply bg-background text-foreground;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+  /* Prevent zoom on input focus (iOS) when viewport already locked */
+  input, textarea, select {
+    font-size: 16px;
   }
 }

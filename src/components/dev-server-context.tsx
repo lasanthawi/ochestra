@@ -44,20 +44,10 @@ export function DevServerContextProvider({
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUrls = useCallback(async () => {
-    // Don't fetch if shouldFetch is false
-    if (!shouldFetch) {
-      return;
-    }
-
+    if (!shouldFetch) return;
     try {
-      const wasInitialLoad = isLoading;
-      if (wasInitialLoad) {
-        // Only show loading state on initial fetch
-        setIsLoading(true);
-      }
-
+      setIsLoading(true);
       const data = await getDevServerUrls({ projectId });
-
       setDevServerUrl(data.devServerUrl);
       setCodeServerUrl(data.codeServerUrl);
       setDeploymentUrl(data.deploymentUrl);
@@ -68,7 +58,7 @@ export function DevServerContextProvider({
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, shouldFetch, isLoading]);
+  }, [projectId, shouldFetch]);
 
   // Initial fetch and polling every 30 seconds
   useEffect(() => {

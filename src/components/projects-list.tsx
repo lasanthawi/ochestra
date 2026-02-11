@@ -92,20 +92,20 @@ export function ProjectsList({ projects }: ProjectsListProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Search projects..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
+          className="h-11 min-h-11 pl-10 touch-manipulation sm:h-10"
         />
       </div>
 
       {filteredProjects.length === 0 ? (
         <Card>
-          <CardContent className="flex min-h-[200px] items-center justify-center">
+          <CardContent className="flex min-h-[180px] items-center justify-center p-6 sm:min-h-[200px]">
             <p className="text-muted-foreground">
               {search
                 ? "No projects found matching your search."
@@ -114,10 +114,13 @@ export function ProjectsList({ projects }: ProjectsListProps) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {filteredProjects.map((project) => (
-            <Card key={project.id} className="h-full hover:border-primary">
-              <CardHeader>
+            <Card
+              key={project.id}
+              className="h-full transition-colors hover:border-primary touch-manipulation active:scale-[0.99]"
+            >
+              <CardHeader className="p-4 sm:p-6">
                 <div className="flex items-start gap-3">
                   <div className="rounded-lg bg-primary/10 p-2">
                     <FolderIcon className="h-5 w-5 text-primary" />
