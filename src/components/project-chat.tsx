@@ -122,7 +122,7 @@ const ProjectChatContent = ({
     return runtime.threads.subscribe(() => {
       if (runtime.threads.getState().isLoading || switched) return;
       switched = true;
-      if (runtime.threads.getState().threads.length === 0) return;
+      if (runtime.threads.getState().threadIds.length === 0) return;
       runtime.threads.switchToThread(threadId);
     });
   }, [runtime, threadId]);

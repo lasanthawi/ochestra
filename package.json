@@ -2,6 +2,9 @@
   "name": "aileen",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.14.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,9 +27,9 @@
     "@ai-sdk/google": "^2.0.29",
     "@ai-sdk/mcp": "^0.0.4",
     "@ai-sdk/openai": "^2.0.64",
-    "@assistant-ui/react": "^0.11.35",
+    "@assistant-ui/react": "^0.12.9",
     "@assistant-ui/react-ai-sdk": "^1.1.8",
-    "@assistant-ui/react-markdown": "^0.11.2",
+    "@assistant-ui/react-markdown": "^0.12.2",
     "@hookform/resolvers": "^5.2.2",
     "@mastra/ai-sdk": "^0.2.6",
     "@mastra/core": "^0.24.0",

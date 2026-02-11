@@ -19,14 +19,14 @@ async function main() {
 
   console.log("🤖 Starting AI conversation with Sonnet-4...\n");
 
-  // Use AI SDK with Sonnet-4
+  // Use AI SDK with Sonnet-4 (MCP tools shape is compatible but uses FlexibleSchema<unknown>; assert for build)
   const result = streamText({
     model: anthropic("claude-sonnet-4-0"),
     system:
       "Tell me the folder structure of this coding project using the available tools. Start in /template directory.",
     prompt: "What is the folder structure of this project?",
     stopWhen: stepCountIs(20),
-    tools,
+    tools: tools as Parameters<typeof streamText>[0]["tools"],
   });
 
   // Stream the response
