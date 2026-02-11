@@ -37,7 +37,9 @@ const NeonSchema = z.object({
 
 const AssistantUISchema = z.object({
   baseUrl: z.url("NEXT_PUBLIC_ASSISTANT_BASE_URL must be a valid URL."),
-  apiKey: z.string("ASSISTANT_API_KEY must be defined."),
+  apiKey: z
+    .string("ASSISTANT_API_KEY must be defined.")
+    .min(1, "ASSISTANT_API_KEY must not be empty."),
 });
 
 const FreestyleSchema = z.object({

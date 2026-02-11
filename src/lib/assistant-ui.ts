@@ -4,14 +4,25 @@ import { AssistantCloud } from "@assistant-ui/react";
 import invariant from "tiny-invariant";
 import { mainConfig } from "./config";
 
+async function getNormalizedAssistantApiKey(): Promise<string> {
+  const raw = mainConfig.assistantUI.apiKey.trim();
+  if (raw.toLowerCase().startsWith("bearer ")) return raw.slice(7).trim();
+  return raw;
+}
+
 export async function createAssistantThread(
   userId: string,
   projectName: string,
 ): Promise<string> {
   console.log("[AssistantCloud] Creating thread for project:", projectName);
 
+  const apiKey = await getNormalizedAssistantApiKey();
+  if (!apiKey) {
+    throw new Error("ASSISTANT_API_KEY is empty after trimming.");
+  }
+
   const assistantCloud = new AssistantCloud({
-    apiKey: mainConfig.assistantUI.apiKey,
+    apiKey,
     userId: userId,
     workspaceId: userId,
   });
@@ -36,8 +47,9 @@ export async function deleteAssistantThread(
 ): Promise<void> {
   console.log("[AssistantCloud] Deleting thread:", threadId);
 
+  const apiKey = await getNormalizedAssistantApiKey();
   const assistantCloud = new AssistantCloud({
-    apiKey: mainConfig.assistantUI.apiKey,
+    apiKey,
     userId: userId,
     workspaceId: userId,
   });

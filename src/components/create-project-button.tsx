@@ -20,11 +20,13 @@ export function CreateProjectButton() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       const response = await fetch("/api/v1/projects", {
@@ -36,7 +38,9 @@ export function CreateProjectButton() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create project");
+        const body = await response.json().catch(() => ({}));
+        const detail = body.detail ?? body.error ?? "Failed to create project";
+        throw new Error(typeof detail === "string" ? detail : "Failed to create project");
       }
 
       const project = await response.json();
@@ -44,16 +48,17 @@ export function CreateProjectButton() {
       setOpen(false);
       setName("");
       router.push(`/projects/${project.id}`);
-    } catch (error) {
-      console.error("Error creating project:", error);
-      // TODO: Add proper error handling/toast
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to create project";
+      setError(message);
+      console.error("Error creating project:", err);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(open) => { setOpen(open); if (!open) setError(null); }}>
       <DialogTrigger asChild>
         <Button size="lg">
           <PlusIcon className="mr-2 h-4 w-4" />
@@ -69,6 +74,11 @@ export function CreateProjectButton() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {error && (
+              <p className="text-sm text-destructive rounded-md bg-destructive/10 p-3">
+                {error}
+              </p>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="name">Project Name</Label>
               <Input

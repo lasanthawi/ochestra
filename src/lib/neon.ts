@@ -200,6 +200,14 @@ export class NeonService {
     if (!res.ok) {
       const text = await res.text();
       console.error("[Neon] Error response:", text);
+      const vercelManaged =
+        res.status === 404 &&
+        /organization is managed by Vercel/i.test(text);
+      if (vercelManaged) {
+        throw new Error(
+          'Neon API key is from a Vercel-managed organization; creating projects via the API is restricted. Use a standalone Neon API key from https://console.neon.tech (Account → API Keys), not from the Vercel integration.',
+        );
+      }
       throw new Error(`Failed to create Neon project: ${res.status} ${text}`);
     }
 
